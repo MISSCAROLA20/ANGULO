@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MISCAROLA 20 | Misión Ángulos</title>
+<style>
+:root{--navy:#172554;--blue:#2563eb;--cyan:#06b6d4;--pink:#ec4899;--gold:#f59e0b;--green:#16a34a;--bg:#f4f7ff}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(135deg,#eef2ff,#ecfeff);color:#172554}
+header{background:linear-gradient(120deg,#172554,#4338ca);color:white;padding:24px 16px;text-align:center}
+.logo{display:inline-block;background:#fbbf24;color:#172554;border-radius:14px;padding:7px 13px;font-weight:900;letter-spacing:2px}
+h1{margin:12px 0 5px;font-size:clamp(1.7rem,5vw,2.7rem)}header p{margin:0;color:#dbeafe}
+main{max-width:900px;margin:22px auto;padding:0 14px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat,.panel{background:white;border:1px solid #dbeafe;border-radius:18px;padding:14px;box-shadow:0 8px 24px #1725540c}
+.stat{text-align:center}.stat strong{display:block;font-size:1.35rem;color:#4338ca}.stat span{font-size:.85rem;color:#64748b}
+.progress{height:9px;background:#dbeafe;border-radius:9px;overflow:hidden;margin:10px 0 18px}.bar{height:100%;background:linear-gradient(90deg,#06b6d4,#6366f1);width:0%;transition:width .3s}
+.panel{padding:clamp(16px,4vw,28px)}.topline{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.pill{background:#e0e7ff;color:#3730a3;padding:6px 10px;border-radius:99px;font-size:.85rem;font-weight:800}
+h2{font-size:1.35rem;margin:15px 0 8px}.question{font-size:1.12rem;font-weight:650;line-height:1.5}
+.diagram{display:flex;justify-content:center;align-items:center;margin:12px auto;min-height:165px}
+svg{width:min(100%,360px);height:auto}.answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
+.answer{border:2px solid #c7d2fe;border-radius:13px;padding:13px 10px;background:#f8faff;color:#172554;font-weight:750;font-size:1rem;cursor:pointer;transition:.15s}
+.answer:hover{border-color:#6366f1;transform:translateY(-1px)}.answer:disabled{cursor:default;transform:none}.answer.correct{background:#dcfce7;border-color:#22c55e}.answer.wrong{background:#fee2e2;border-color:#ef4444}
+.feedback{min-height:50px;margin-top:14px;padding:12px;border-radius:12px;font-weight:650;display:none}.feedback.show{display:block}.feedback.good{background:#dcfce7;color:#166534}.feedback.bad{background:#ffedd5;color:#9a3412}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.btn{border:0;border-radius:12px;padding:12px 17px;font-weight:800;font-size:.95rem;cursor:pointer}.primary{background:#4338ca;color:white}.secondary{background:#e0e7ff;color:#3730a3}.btn:disabled{opacity:.45;cursor:not-allowed}
+.start{text-align:center;padding:25px 8px}.start p{line-height:1.65;color:#475569}.start .btn{margin:8px}.hidden{display:none!important}
+footer{text-align:center;padding:24px;color:#64748b;font-size:.85rem}
+@media(max-width:500px){.stats{gap:6px}.stat{padding:10px 4px}.stat span{font-size:.75rem}.answers{grid-template-columns:1fr}.diagram{min-height:130px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">MISCAROLA 20</div>
+  <h1>🎯 Misión: ¡Domina los ángulos!</h1>
+  <p>Juego matemático · 5.º grado de primaria</p>
+</header>
+<main>
+  <div class="stats">
+    <div class="stat"><strong id="score">0</strong><span>Puntos</span></div>
+    <div class="stat"><strong id="progressText">0/10</strong><span>Preguntas</span></div>
+    <div class="stat"><strong id="streak">0</strong><span>Racha ⭐</span></div>
+  </div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <section class="panel start" id="startScreen">
+    <div style="font-size:3.5rem">📐✨</div>
+    <h2>¡Bienvenida y bienvenido a MISCAROLA 20!</h2>
+    <p>Responde 10 retos sobre ángulos agudos, rectos, obtusos, llanos y completos.<br>
+    Cada respuesta correcta suma <b>10 puntos</b>. ¡Lee con atención y alcanza la medalla de experto!</p>
+    <button class="btn primary" onclick="startGame()">🚀 Comenzar juego</button>
+  </section>
+  <section class="panel hidden" id="gameScreen">
+    <div class="topline"><span class="pill" id="level">RETO 1</span><span class="pill" id="topic">Clasifica el ángulo</span></div>
+    <h2 id="questionTitle">¿Qué tipo de ángulo es?</h2>
+    <div class="question" id="question"></div>
+    <div class="diagram" id="diagram"></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
+    <div class="actions"><button class="btn primary" id="nextBtn" onclick="nextQuestion()" disabled>Siguiente reto ➜</button><button class="btn secondary" onclick="quitGame()">Salir</button></div>
+  </section>
+  <section class="panel start hidden" id="endScreen">
+    <div style="font-size:3.5rem" id="trophy">🏆</div>
+    <h2 id="endTitle">¡Misión completada!</h2>
+    <p id="endMessage"></p>
+    <button class="btn primary" onclick="startGame()">🔁 Jugar otra vez</button>
+    <button class="btn secondary" onclick="showReview()">📘 Repasar conceptos</button>
+    <div id="review" class="hidden" style="text-align:left;margin:18px auto;max-width:520px;line-height:1.8">
+      <b>Ángulo agudo:</b> mide menos de 90°.<br>
+      <b>Ángulo recto:</b> mide exactamente 90°.<br>
+      <b>Ángulo obtuso:</b> mide más de 90° y menos de 180°.<br>
+      <b>Ángulo llano:</b> mide 180°.<br>
+      <b>Ángulo completo:</b> mide 360°.
+    </div>
+  </section>
+</main>
+<footer>Creado para aprender jugando · MISCAROLA 20 💙</footer>
+<script>
+const questions=[
+ {q:"Un ángulo mide 35°. ¿Cómo se clasifica?",a:["Agudo","Recto","Obtuso","Llano"],c:0,d:35,ex:"35° es menor que 90°, por eso es un ángulo agudo."},
+ {q:"Las esquinas de una hoja rectangular forman ángulos de 90°. ¿Qué tipo son?",a:["Agudos","Rectos","Obtusos","Llanos"],c:1,d:90,ex:"Un ángulo recto mide exactamente 90°."},
+ {q:"¿Cómo se llama un ángulo que mide 125°?",a:["Agudo","Recto","Obtuso","Completo"],c:2,d:125,ex:"125° está entre 90° y 180°, así que es obtuso."},
+ {q:"Un ángulo mide exactamente 180°. ¿Cuál es?",a:["Recto","Agudo","Completo","Llano"],c:3,d:180,ex:"El ángulo llano mide 180° y forma una línea recta."},
+ {q:"¿Cuántos grados tiene una vuelta completa?",a:["90°","180°","270°","360°"],c:3,d:360,ex:"Una vuelta completa equivale a 360°."},
+ {q:"¿Cuál de estas medidas corresponde a un ángulo agudo?",a:["145°","90°","72°","180°"],c:2,d:72,ex:"72° es menor que 90°, por lo tanto es agudo."},
+ {q:"Si un ángulo mide 98°, se clasifica como…",a:["Obtuso","Agudo","Recto","Llano"],c:0,d:98,ex:"98° es mayor que 90° y menor que 180°."},
+ {q:"Dos ángulos rectos juntos forman un ángulo de…",a:["45°","90°","180°","360°"],c:2,d:180,ex:"90° + 90° = 180°, que es un ángulo llano."},
+ {q:"¿Qué instrumento se utiliza para medir ángulos?",a:["Regla","Transportador","Compás solamente","Cinta métrica"],c:1,d:null,ex:"El transportador permite medir la amplitud de los ángulos en grados."},
+ {q:"Un ángulo de 15° es…",a:["Obtuso","Llano","Recto","Agudo"],c:3,d:15,ex:"15° es menor que 90°, por eso es agudo."},
+ {q:"¿Cuál afirmación es verdadera?",a:["Todo ángulo obtuso mide menos de 90°","Un ángulo recto mide 90°","Un ángulo llano mide 90°","Un ángulo agudo mide 180°"],c:1,d:90,ex:"La medida exacta de un ángulo recto es 90°."},
+ {q:"¿Cuánto le falta a un ángulo de 60° para llegar a 90°?",a:["20°","30°","40°","120°"],c:1,d:60,ex:"90° − 60° = 30°."},
+ {q:"¿Qué tipo de ángulo mide 220°?",a:["Agudo","Recto","Obtuso","Cóncavo"],c:3,d:220,ex:"220° es mayor que 180° y menor que 360°; se denomina ángulo cóncavo o reflejo."}
+];
+let deck=[],idx=0,score=0,streak=0,answered=false;
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function startGame(){deck=shuffle(questions).slice(0,10);idx=0;score=0;streak=0;document.getElementById('score').textContent=0;document.getElementById('streak').textContent=0;document.getElementById('startScreen').classList.add('hidden');document.getElementById('endScreen').classList.add('hidden');document.getElementById('gameScreen').classList.remove('hidden');renderQuestion()}
+function drawAngle(deg){if(deg===null)return '';let a=Math.min(deg,359),r=63,cx=155,cy=100;let endX=cx+r*Math.cos(-a*Math.PI/180),endY=cy+r*Math.sin(-a*Math.PI/180);let large=a>180?1:0;let arc=a===360?`<circle cx="${cx}" cy="${cy}" r="29" fill="none" stroke="#ec4899" stroke-width="3"/>`:`<path d="M ${cx+29} ${cy} A 29 29 0 ${large} 0 ${cx+29*Math.cos(-a*Math.PI/180)} ${cy+29*Math.sin(-a*Math.PI/180)}" fill="none" stroke="#ec4899" stroke-width="3"/>`;return `<svg viewBox="0 0 310 155" role="img" aria-label="Dibujo de un ángulo de ${deg} grados"><line x1="${cx}" y1="${cy}" x2="${cx+88}" y2="${cy}" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/><line x1="${cx}" y1="${cy}" x2="${endX}" y2="${endY}" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>${arc}<circle cx="${cx}" cy="${cy}" r="4" fill="#172554"/><text x="155" y="145" text-anchor="middle" fill="#4338ca" font-size="15" font-weight="700">${deg}°</text></svg>`}
+function renderQuestion(){answered=false;const q=deck[idx];document.getElementById('level').textContent=`RETO ${idx+1} DE 10`;document.getElementById('topic').textContent=q.d===null?'Instrumentos':'Tipos de ángulos';document.getElementById('question').textContent=q.q;document.getElementById('diagram').innerHTML=drawAngle(q.d);document.getElementById('answers').innerHTML='';document.getElementById('feedback').className='feedback';document.getElementById('feedback').textContent='';document.getElementById('nextBtn').disabled=true;document.getElementById('nextBtn').textContent=idx===9?'Ver resultado 🏆':'Siguiente reto ➜';q.a.forEach((a,i)=>{let b=document.createElement('button');b.className='answer';b.textContent=a;b.onclick=()=>chooseAnswer(i);document.getElementById('answers').appendChild(b)});document.getElementById('progressText').textContent=`${idx}/10`;document.getElementById('bar').style.width=`${idx*10}%`}
+function chooseAnswer(n){if(answered)return;answered=true;let q=deck[idx],buttons=[...document.querySelectorAll('.answer')];buttons.forEach((b,i)=>{b.disabled=true;if(i===q.c)b.classList.add('correct');else if(i===n)b.classList.add('wrong')});const f=document.getElementById('feedback');f.className='feedback show '+(n===q.c?'good':'bad');if(n===q.c){score+=10;streak++;f.textContent='¡Excelente! +10 puntos. '+q.ex}else{streak=0;f.textContent='¡Sigue intentándolo! '+q.ex}document.getElementById('score').textContent=score;document.getElementById('streak').textContent=streak;document.getElementById('progressText').textContent=`${idx+1}/10`;document.getElementById('bar').style.width=`${(idx+1)*10}%`;document.getElementById('nextBtn').disabled=false}
+function nextQuestion(){if(!answered)return;idx++;if(idx>=10){finishGame();return}renderQuestion()}
+function finishGame(){document.getElementById('gameScreen').classList.add('hidden');document.getElementById('endScreen').classList.remove('hidden');document.getElementById('trophy').textContent=score===100?'🏆':'🎉';document.getElementById('endTitle').textContent=score>=80?'¡Eres experto en ángulos!':score>=50?'¡Buen trabajo! ¡Sigue practicando!':'¡Misión completada!';document.getElementById('endMessage').innerHTML=`Obtuviste <b>${score} de 100 puntos</b> (${score/10} respuestas correctas de 10).<br>${score>=80?'¡Felicitaciones! Dominas muy bien los ángulos.':'Repasa los conceptos y vuelve a intentarlo para mejorar tu puntuación.'}`;document.getElementById('review').classList.add('hidden')}
+function showReview(){document.getElementById('review').classList.toggle('hidden')}
+function quitGame(){if(confirm('¿Deseas salir y volver al inicio?')){document.getElementById('gameScreen').classList.add('hidden');document.getElementById('startScreen').classList.remove('hidden')}}
+</script>
+</body>
+</html>
